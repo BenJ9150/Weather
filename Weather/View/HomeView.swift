@@ -9,33 +9,36 @@ import SwiftUI
 
 // MARK: Content view
 
-struct ContentView: View {
+struct HomeView: View {
 
     @StateObject var weather = WeatherManager()
     @State private var showingCityAlert = false
     @State private var city = "paris"
 
     var body: some View {
-        ZStack {
-            BackgroundView()
-            VStack {
-                CurrentDayView()
-                WeatherForecastScrollView()
-                Spacer()
-                WeatherButton(title: "Change city") {
-                    showingCityAlert.toggle()
+        NavigationView {
+            ZStack {
+                BackgroundView()
+                VStack {
+                    CurrentDayView()
+                    WeatherForecastScrollView()
+                    Spacer()
+                    WeatherButton(title: "Change city") {
+                        showingCityAlert.toggle()
+                    }
                 }
             }
+            .onAppear {
+                self.changeCity()
+            }
+            .environmentObject(weather)
+            .alert("Enter your city", isPresented: $showingCityAlert) {
+                TextField("My city", text: $city).submitLabel(.done)
+                Button("Ok", action: changeCity)
+                Button("Cancel", role: .cancel) {}
+            }
         }
-        .onAppear {
-            self.changeCity()
-        }
-        .environmentObject(weather)
-        .alert("Enter your city", isPresented: $showingCityAlert) {
-            TextField("My city", text: $city).submitLabel(.done)
-            Button("Ok", action: changeCity)
-            Button("Cancel", role: .cancel) {}
-        }
+        .tint(Color("color_button"))
     }
 
     func changeCity() {
@@ -48,7 +51,7 @@ struct ContentView: View {
 // MARK: Preview
 
 #Preview {
-    ContentView()
+    HomeView()
 }
 
 // MARK: Background
@@ -56,10 +59,11 @@ struct ContentView: View {
 struct BackgroundView: View {
 
     @EnvironmentObject var weather: WeatherManager
+    let dayColor = Color("color_lightBlue")
 
     var body: some View {
         LinearGradient(gradient: Gradient(colors: [weather.weatherData.current.is_day == 1 ? .blue : .black,
-                                                   weather.weatherData.current.is_day == 1 ? .white : .gray]),
+                                                   weather.weatherData.current.is_day == 1 ? dayColor : .gray]),
                        startPoint: .topLeading,
                        endPoint: .bottomLeading)
         .ignoresSafeArea(edges: .all)
@@ -111,7 +115,7 @@ struct WeatherForecastView: View {
 
     var body: some View {
         VStack {
-            Text(weatherForecast.daysName)
+            Text(weatherForecast.shortDayName)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(.white)
             Image(uiImage: UIImage(named: weatherForecast.image)!)
@@ -119,7 +123,7 @@ struct WeatherForecastView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 40, height: 40)
-            Text("\(Int(round(weatherForecast.temperature)))°")
+            Text("\(Int(round(weatherForecast.average)))°")
                 .font(.system(size: 28, weight: .medium))
                 .foregroundStyle(.white)
         }
@@ -135,7 +139,11 @@ struct WeatherForecastScrollView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 20) {
                     ForEach(weather.weatherForecasts, id: \.id) { forecast in
-                        WeatherForecastView(weatherForecast: forecast)
+                        NavigationLink {
+                            DetailView(weatherForecast: forecast)
+                        } label: {
+                            WeatherForecastView(weatherForecast: forecast)
+                        }
                     }
                 }
                 .padding()

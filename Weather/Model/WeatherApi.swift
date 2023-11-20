@@ -32,7 +32,8 @@ extension WeatherApi {
             completionHandler(WeatherData())
             return
         }
-        guard let url = URL(string: startOfUrl + tokenKey + AppSettings.weatherApiToken + cityKey + city + daysKey + String(forecastCount) + endOfUrl) else {
+        guard let url = URL(string: startOfUrl + tokenKey + AppSettings.weatherApiToken
+                            + cityKey + city + daysKey + String(forecastCount) + endOfUrl) else {
             completionHandler(WeatherData())
             return
         }

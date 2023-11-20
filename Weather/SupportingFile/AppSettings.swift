@@ -10,6 +10,7 @@ import Foundation
 class AppSettings {
 
     // MARK: Weather API token
+
     static var weatherApiToken: String = {
         // place the file WeatherApiToken.txt in the SupportingFile directory from Xcode
         // file must appear in Xcode project Navigator

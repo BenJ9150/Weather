@@ -49,6 +49,10 @@ struct Day: Decodable {
 
     // swiftlint:disable identifier_name
     var avgtemp_c = 0.0
+    var maxtemp_c = 0.0
+    var mintemp_c = 0.0
+    var maxwind_kph = 0.0
+    var totalprecip_mm = 0.0
     // swiftlint:enable identifier_name
     var condition = Condition()
 }
@@ -56,7 +60,12 @@ struct Day: Decodable {
 struct WeatherForecast: Identifiable {
 
     let id = UUID()
-    let daysName: String
+    let dayName: String
+    let shortDayName: String
     let image: String
-    let temperature: Double
+    let average: Double
+    let minTemp: Double
+    let maxTemp: Double
+    let maxWind: Double
+    let precip: Double
 }

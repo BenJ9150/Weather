@@ -27,9 +27,16 @@ extension WeatherManager {
             self.weatherForecasts.removeAll()
             var dayIndex = 1
             for forecastDay in result.forecast.forecastday {
-                let weatherForecast = WeatherForecast(daysName: self.getNameOfDay(addedDays: dayIndex),
+                // create new forecast
+                let weatherForecast = WeatherForecast(dayName: self.getNameOfDay(addedDays: dayIndex, short: false),
+                                                      shortDayName: self.getNameOfDay(addedDays: dayIndex, short: true),
                                                       image: forecastDay.day.condition.icon,
-                                                      temperature: forecastDay.day.avgtemp_c)
+                                                      average: forecastDay.day.avgtemp_c,
+                                                      minTemp: forecastDay.day.mintemp_c,
+                                                      maxTemp: forecastDay.day.maxtemp_c,
+                                                      maxWind: forecastDay.day.maxwind_kph,
+                                                      precip: forecastDay.day.totalprecip_mm)
+                // add forecast to array
                 self.weatherForecasts.append(weatherForecast)
                 dayIndex += 1
             }
@@ -41,19 +48,23 @@ extension WeatherManager {
 
 extension WeatherManager {
 
-    private func getNameOfDay(addedDays: Int) -> String {
+    private func getNameOfDay(addedDays: Int, short: Bool) -> String {
         guard let modifiedDate = Calendar.current.date(byAdding: .day, value: addedDays, to: Date()) else {
             return ""
         }
-        return modifiedDate.dayOfWeek()
+        return modifiedDate.dayOfWeek(short: short)
     }
 }
 
 extension Date {
 
-    func dayOfWeek() -> String {
+    func dayOfWeek(short: Bool) -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EE"
+        if short {
+            dateFormatter.dateFormat = "EE"
+        } else {
+            dateFormatter.dateFormat = "EEEE"
+        }
         return dateFormatter.string(from: self).uppercased()
     }
 }
