@@ -16,7 +16,7 @@ struct HomeView: View {
     @State private var city = "paris"
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 BackgroundView()
                 VStack {

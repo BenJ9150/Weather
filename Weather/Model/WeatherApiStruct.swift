@@ -1,5 +1,5 @@
 //
-//  WeatherApiJsonStruct.swift
+//  WeatherApiStruct.swift
 //  Weather
 //
 //  Created by Benjamin LEFRANCOIS on 18/11/2023.

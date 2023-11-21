@@ -11,7 +11,12 @@ final class WeatherApi {
 
     // MARK: Private properties
 
+    #if JSON_API
     private let startOfUrl = "https://api.weatherapi.com/v1/forecast.json?"
+    #else
+    private let startOfUrl = "https://api.weatherapi.com/v1/forecast.xml?"
+    #endif
+
     private let tokenKey = "key="
     private let cityKey = "&q="
     private let daysKey = "&days="
@@ -43,25 +48,60 @@ extension WeatherApi {
                 return
             }
             DispatchQueue.main.async {
+                #if JSON_API
+                completionHandler(self.decode(data: data, forecastCount: forecastCount))
+                #else
                 completionHandler(self.parse(data: data, forecastCount: forecastCount))
+                #endif
             }
         }
         task.resume()
     }
+}
 
-    private func parse(data: Data?, forecastCount: Int) -> WeatherData {
-        if let data = data, var currentDay = try? JSONDecoder().decode(WeatherData.self, from: data) {
+// MARK: Decode or parse
+
+extension WeatherApi {
+
+    private func decode(data: Data?, forecastCount: Int) -> WeatherData {
+        if let data = data, var weatherData = try? JSONDecoder().decode(WeatherData.self, from: data) {
             // change icon of current day
-            currentDay.current.condition.icon =
-            getImageName(url: currentDay.current.condition.icon, isDay: currentDay.current.is_day)
+            weatherData.current.condition.icon =
+            getImageName(url: weatherData.current.condition.icon, isDay: weatherData.current.is_day)
             // change icon of forecast days
             var index = 0
             while index < forecastCount {
-                currentDay.forecast.forecastday[index].day.condition.icon =
-                getImageName(url: currentDay.forecast.forecastday[index].day.condition.icon, isDay: 1)
+                weatherData.forecast.forecastday[index].day.condition.icon =
+                getImageName(url: weatherData.forecast.forecastday[index].day.condition.icon, isDay: 1)
                 index += 1
             }
-            return currentDay
+            return weatherData
+        }
+        return WeatherData()
+    }
+
+    private func parse(data: Data?, forecastCount: Int) -> WeatherData {
+        if let data = data {
+            let parser = WeatherXmlParser(data: data)
+            if parser.parse() {
+                // change icon of current day
+                parser.weatherData.current.condition.icon =
+                getImageName(url: parser.weatherData.current.condition.icon, isDay: parser.weatherData.current.is_day)
+                // change icon of forecast days
+                var index = 0
+                while index < forecastCount {
+                    parser.weatherData.forecast.forecastday[index].day.condition.icon =
+                    getImageName(url: parser.weatherData.forecast.forecastday[index].day.condition.icon, isDay: 1)
+                    index += 1
+                }
+                return parser.weatherData
+            } else {
+                if let error = parser.parserError {
+                    print(error)
+                } else {
+                    print("Failed with unknown reason")
+                }
+            }
         }
         return WeatherData()
     }

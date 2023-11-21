@@ -19,7 +19,6 @@ class AppSettings {
                 let data = try String(contentsOfFile: path, encoding: .utf8)
                 let myStrings = data.components(separatedBy: .newlines)
                 let text = myStrings.joined(separator: "\n")
-                print("\(text)")
                 return text
             } catch {
                 print(error)
