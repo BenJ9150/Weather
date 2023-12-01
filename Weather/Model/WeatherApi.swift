@@ -70,7 +70,7 @@ extension WeatherApi {
             getImageName(url: weatherData.current.condition.icon, isDay: weatherData.current.is_day)
             // change icon of forecast days
             var index = 0
-            while index < forecastCount {
+            while index < forecastCount && index < weatherData.forecast.forecastday.count {
                 weatherData.forecast.forecastday[index].day.condition.icon =
                 getImageName(url: weatherData.forecast.forecastday[index].day.condition.icon, isDay: 1)
                 index += 1
@@ -89,7 +89,7 @@ extension WeatherApi {
                 getImageName(url: parser.weatherData.current.condition.icon, isDay: parser.weatherData.current.is_day)
                 // change icon of forecast days
                 var index = 0
-                while index < forecastCount {
+                while index < forecastCount && index < parser.weatherData.forecast.forecastday.count {
                     parser.weatherData.forecast.forecastday[index].day.condition.icon =
                     getImageName(url: parser.weatherData.forecast.forecastday[index].day.condition.icon, isDay: 1)
                     index += 1
